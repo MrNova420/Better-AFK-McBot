@@ -12,6 +12,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 2025)
 
+### October 14, 2025 - Replit Environment Setup
+- **UPGRADED**: Node.js from v14 to v22 to meet mineflayer dependencies
+- **CONFIGURED**: Express server to bind to 0.0.0.0:5000 for Replit compatibility
+- **SETUP**: Workflow configured for console output with web dashboard
+- **READY**: Project fully configured for Replit deployment
+- **NOTE**: Users must configure `config/settings.json` with their Minecraft server details before use
+
 ### October 14, 2025 - Version 4.0 - Smart Admin Helper Bot
 - **REMOVED**: OpenAI API dependency - bot now works with zero external services!
 - **NEW**: Smart response system with 100+ pre-written context-aware templates
@@ -180,7 +187,8 @@ Single-process Node.js application that runs a Minecraft bot client and a basic 
 ### Infrastructure Requirements
 
 **Runtime Environment**
-- Node.js 14.0.0 or higher (specified in package.json engines)
+- Node.js 22+ required (mineflayer v4.33.0+ dependency)
+- Replit setup: Node.js 22.17.0 installed and configured
 - Network connectivity to Minecraft servers (TCP, configurable port)
 - Persistent storage for configuration files (config directory)
 
@@ -190,6 +198,40 @@ Single-process Node.js application that runs a Minecraft bot client and a basic 
 - Termux for Android 24/7 hosting (automated setup provided)
 
 **Network & Ports**
-- Inbound: Port 5000 (Express web dashboard)
+- Inbound: Port 5000 (Express web dashboard, bound to 0.0.0.0 for Replit)
 - Outbound: Minecraft server port (default 25565, configurable)
 - Outbound: HTTPS 443 for Microsoft authentication (when applicable)
+
+## Replit-Specific Setup
+
+### Configuration Required
+Before the bot can connect to a Minecraft server, you must edit `config/settings.json`:
+
+1. **Bot Account Settings**
+   - Set your Minecraft username
+   - For offline servers: leave password empty
+   - For Microsoft accounts: set type to "microsoft" and provide credentials
+   - Note: Mojang authentication is deprecated (accounts must be migrated to Microsoft)
+
+2. **Server Settings**
+   - Set the Minecraft server IP address
+   - Set the server port (default: 25565)
+   - Set the Minecraft version to match your server
+   - Optionally set a server name for messages
+
+3. **Feature Configuration**
+   - Configure anti-AFK, chat messages, smart responses as desired
+   - All features are pre-configured with sensible defaults
+
+### Running on Replit
+- The workflow is configured to run automatically on start
+- Web dashboard is accessible at the preview URL
+- Console output shows bot activity and connection status
+- Logs include connection attempts, chat messages, and errors
+
+### Deployment
+To run this bot 24/7 on Replit:
+1. Configure your settings in `config/settings.json`
+2. Deploy using Replit's Reserved VM deployment option
+3. The bot will automatically start and maintain the connection
+4. Monitor status via the web dashboard at `/health` endpoint
