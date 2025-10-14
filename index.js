@@ -272,8 +272,17 @@ function validateConfig() {
    }
    
    if (!config.server || !config.server.ip || config.server.ip.includes('your.') || config.server.ip.includes('SETUP_REQUIRED')) {
-      log('WARNING', 'Server IP not configured - bot will not connect to Minecraft server');
-      log('WARNING', 'Run "npm run setup" to configure your bot, or edit config/settings.json manually');
+      log('ERROR', '═══════════════════════════════════════════════════════════');
+      log('ERROR', '  SETUP REQUIRED - Bot is not configured yet!');
+      log('ERROR', '═══════════════════════════════════════════════════════════');
+      log('ERROR', '');
+      log('ERROR', '  Please run the setup wizard to configure your bot:');
+      log('ERROR', '');
+      log('ERROR', '     npm run setup');
+      log('ERROR', '');
+      log('ERROR', '  Or edit config/settings.json manually with your server details');
+      log('ERROR', '');
+      log('ERROR', '═══════════════════════════════════════════════════════════');
       return false;
    }
    

@@ -40,29 +40,24 @@ A **production-ready**, lightweight Minecraft bot designed for **24/7 operation*
 - 🔐 **Auto-Authentication** - Supports `/register` and `/login` commands
 - 📈 **Player Tracking** - Monitors player activity and statistics
 
-## 📦 Quick Start (60 Seconds!)
+## 📦 Quick Start
 
-### 🚀 Super Easy Setup - Just 3 Commands:
+### 🖥️ Desktop/Laptop/Replit:
 
 ```bash
-# 1. Install the bot (one-time)
-npm install
-
-# 2. Run the setup wizard (answers 5 simple questions)
-npm run setup
-
-# 3. Start your bot!
-npm start
+npm install              # Install dependencies (one-time)
+npm run setup            # Configure your server (one-time)
+npm start                # Run the bot!
 ```
 
-**That's it!** 🎉 The bot will connect to your server and start helping players automatically!
+### 📱 Termux (Android):
 
-### 📱 Termux (Android) - One Command:
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/yourusername/bettersmp-bot/main/termux-install.sh)
+bash termux-setup.sh     # Install & configure (one-time)
+npm start                # Run the bot!
 ```
 
-> **See [QUICK-START.md](QUICK-START.md) for detailed walkthrough with examples!**
+**That's it!** 🎉 The setup wizard will ask you 5 simple questions about your server, then the bot connects automatically!
 
 ## ⚙️ Configuration
 
