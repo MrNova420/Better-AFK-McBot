@@ -1,15 +1,19 @@
 {
   "name": "bettersmp-bot",
   "version": "4.0.0",
-  "description": "Lightweight admin helper bot for Minecraft servers - keeps servers active and helps players automatically",
+  "description": "Production-ready Minecraft bot for 24/7 server activity and player assistance - stable, lightweight, and fully automated",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "pm2": "pm2 start index.js --name minecraft-bot",
+    "pm2": "pm2 start index.js --name minecraft-bot --max-memory-restart 500M",
     "pm2:stop": "pm2 stop minecraft-bot",
     "pm2:restart": "pm2 restart minecraft-bot",
-    "pm2:logs": "pm2 logs minecraft-bot"
+    "pm2:logs": "pm2 logs minecraft-bot",
+    "pm2:monit": "pm2 monit",
+    "pm2:status": "pm2 list",
+    "test": "node -e \"require('./index.js')\"",
+    "validate": "node -e \"require('./config/settings.json'); console.log('Config valid');\""
   },
   "keywords": [
     "minecraft",
@@ -18,16 +22,28 @@
     "server",
     "smp",
     "activity",
-    "lightweight"
+    "lightweight",
+    "24/7",
+    "admin-helper",
+    "auto-reconnect",
+    "stable",
+    "production-ready"
   ],
   "author": "BetterSMP Community",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/bettersmp-bot"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/bettersmp-bot/issues"
+  },
   "dependencies": {
     "express": "^4.18.1",
     "mineflayer": "^4.3.0",
     "mineflayer-pathfinder": "^2.1.1"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   }
 }

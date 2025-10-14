@@ -6,6 +6,7 @@ const { GoalBlock } = require('mineflayer-pathfinder').goals;
 const config = require('./config/settings.json');
 const express = require('express');
 const BotResponses = require('./bot-responses');
+const { startMemoryMonitoring, getMemoryUsage, cleanupOldData } = require('./utils');
 
 const app = express();
 
@@ -100,7 +101,13 @@ app.get('/stats', (req, res) => {
       stats: botStatus.stats,
       uptime: Math.floor((Date.now() - botStatus.startTime) / 1000),
       reconnectAttempts: reconnectAttempts,
-      health: botStatus.health
+      health: botStatus.health,
+      memory: getMemoryUsage(),
+      process: {
+         pid: process.pid,
+         uptime: Math.floor(process.uptime()),
+         nodeVersion: process.version
+      }
    });
 });
 
@@ -541,6 +548,18 @@ log('INFO', '='.repeat(60));
 log('INFO', `Username: ${config['bot-account']['username']}`);
 log('INFO', `Server: ${config.server.ip}:${config.server.port}`);
 log('INFO', `Version: ${config.server.version}`);
+log('INFO', `Node.js: ${process.version}`);
 log('INFO', '='.repeat(60));
+
+startMemoryMonitoring(30);
+
+setInterval(() => {
+   if (bot && bot._client) {
+      const botResponses = bot._botResponses;
+      if (botResponses && botResponses.playerStats) {
+         cleanupOldData(botResponses.playerStats, 7 * 24 * 60 * 60 * 1000);
+      }
+   }
+}, 24 * 60 * 60 * 1000);
 
 createBot();
