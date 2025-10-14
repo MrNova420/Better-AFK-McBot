@@ -4,7 +4,9 @@
   "description": "Production-ready Minecraft bot for 24/7 server activity and player assistance - stable, lightweight, and fully automated",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node start.js",
+    "setup": "node setup.js",
+    "bot": "node index.js",
     "dev": "node index.js",
     "pm2": "pm2 start index.js --name minecraft-bot --max-memory-restart 500M",
     "pm2:stop": "pm2 stop minecraft-bot",

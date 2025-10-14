@@ -92,15 +92,122 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
   const uptimeSeconds = Math.floor((Date.now() - botStatus.startTime) / 1000);
-  res.json({
-     status: 'running',
-     bot: {
-        ...botStatus,
-        uptimeSeconds,
-        uptimeFormatted: formatUptime(uptimeSeconds)
-     },
-     message: 'BetterSMP Bot - Active and Running ✅'
-  });
+  const needsSetup = config.server.ip.includes('SETUP_REQUIRED') || config.server.ip.includes('your.') || config['bot-account'].username.includes('SETUP_REQUIRED');
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BetterSMP Bot Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .header p { opacity: 0.9; font-size: 1.1em; }
+    .card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 30px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); }
+    .status { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; animation: pulse 2s infinite; }
+    .status-dot.connected { background: #10b981; }
+    .status-dot.disconnected { background: #ef4444; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .setup-warning { background: rgba(251, 191, 36, 0.2); border-left: 4px solid #fbbf24; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+    .setup-warning h3 { margin-bottom: 10px; color: #fbbf24; }
+    .command { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; margin: 10px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+    .stat-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; }
+    .stat-label { opacity: 0.8; font-size: 0.9em; margin-bottom: 5px; }
+    .stat-value { font-size: 1.5em; font-weight: bold; }
+    .btn { display: inline-block; padding: 12px 24px; background: rgba(255,255,255,0.2); border-radius: 8px; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s; }
+    .btn:hover { background: rgba(255,255,255,0.3); }
+    .success { color: #10b981; }
+    .warning { color: #fbbf24; }
+    .error { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎮 BetterSMP Bot</h1>
+      <p>Lightweight Minecraft Admin Helper</p>
+    </div>
+    
+    ${needsSetup ? `
+    <div class="setup-warning">
+      <h3>⚠️ Configuration Required</h3>
+      <p>Your bot needs to be configured before it can connect to a Minecraft server.</p>
+      <p style="margin-top: 10px;"><strong>Run the setup wizard:</strong></p>
+      <div class="command">npm run setup</div>
+      <p style="margin-top: 10px;">Or edit <code>config/settings.json</code> manually</p>
+    </div>
+    ` : ''}
+    
+    <div class="card">
+      <div class="status">
+        <div class="status-dot ${botStatus.connected ? 'connected' : 'disconnected'}"></div>
+        <h2>${botStatus.connected ? '✅ Connected' : '❌ Disconnected'}</h2>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Server</div>
+          <div class="stat-value">${config.server.ip}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Username</div>
+          <div class="stat-value">${config['bot-account'].username}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Uptime</div>
+          <div class="stat-value">${formatUptime(uptimeSeconds)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Version</div>
+          <div class="stat-value">${config.server.version}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 15px;">📊 Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Messages Received</div>
+          <div class="stat-value">${botStatus.stats.messagesReceived}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Responses Sent</div>
+          <div class="stat-value">${botStatus.stats.responsesSent}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Players Tracked</div>
+          <div class="stat-value">${botStatus.stats.playersTracked}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Errors</div>
+          <div class="stat-value ${botStatus.stats.errors > 0 ? 'error' : 'success'}">${botStatus.stats.errors}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="/health" class="btn">Health Check</a>
+      <a href="/stats" class="btn">Full Stats (JSON)</a>
+    </div>
+  </div>
+  
+  <script>
+    // Auto-refresh every 5 seconds
+    setTimeout(() => location.reload(), 5000);
+  </script>
+</body>
+</html>
+  `;
+  
+  res.send(html);
 });
 
 app.get('/health', (req, res) => {
@@ -164,9 +271,9 @@ function validateConfig() {
       throw new Error('Bot account username is required in config/settings.json');
    }
    
-   if (!config.server || !config.server.ip || config.server.ip === 'your.server.ip') {
+   if (!config.server || !config.server.ip || config.server.ip.includes('your.') || config.server.ip.includes('SETUP_REQUIRED')) {
       log('WARNING', 'Server IP not configured - bot will not connect to Minecraft server');
-      log('WARNING', 'Edit config/settings.json to set your Minecraft server details');
+      log('WARNING', 'Run "npm run setup" to configure your bot, or edit config/settings.json manually');
       return false;
    }
    

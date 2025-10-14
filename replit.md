@@ -12,6 +12,25 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 2025)
 
+### October 14, 2025 - Easy Setup System & User Experience Overhaul
+- **CREATED**: Interactive setup wizard (`setup.js`) for 5-question guided configuration
+- **CREATED**: Smart launcher (`start.js`) with auto-detection of interactive/non-interactive environments  
+- **CREATED**: Termux one-command installer (`termux-install.sh`) for Android deployment
+- **CREATED**: `QUICK-START.md` with detailed walkthrough and examples
+- **ENHANCED**: Beautiful HTML dashboard showing setup status and clear instructions
+- **IMPROVED**: Configuration validation with "SETUP_REQUIRED" placeholders
+- **FIXED**: Non-interactive workflow support (Replit, CI, cron) - auto-starts without hanging
+- **UPDATED**: Package.json with `npm run setup` command for easy configuration
+- **SIMPLIFIED**: README with 3-command quick start (install → setup → start)
+- **REMOVED**: Broken demo server option that caused authentication failures
+- **VALIDATED**: Setup wizard enforces required inputs (username, server IP, version)
+- **AUTOMATED**: Bot runs in dashboard-only mode when not configured, shows clear guidance
+- **USER-FRIENDLY**: All error messages now direct users to run `npm run setup`
+- **DEPLOYMENT**: Fully tested on Replit with non-interactive workflow execution
+- **NOTE**: Bot is now truly easy to use - just run `npm install && npm run setup && npm start`
+
+## Recent Changes (October 2025)
+
 ### October 14, 2025 - Production-Ready Enhancements
 - **UPGRADED**: Node.js from v14 to v22 to meet mineflayer dependencies
 - **ENHANCED**: 200+ natural, varied responses with new categories (farming, combat, enchantments)
