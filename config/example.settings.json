@@ -1,0 +1,69 @@
+{
+  "bot-account": {
+    "username": "YourUsername",
+    "password": "YourPasswordIfNeeded",
+    "type": "mojang"
+  },
+
+  "server": {
+    "ip": "your.server.ip",
+    "port": 25565,
+    "version": "1.12.1",
+    "name": "YourServerName"
+  },
+  
+  "position": {
+    "enabled": false,
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+
+  "utils": {
+    "auto-auth": {
+      "enabled": false,
+      "password": "YourAuthPassword"
+    },
+
+    "smart-responses": {
+      "enabled": true,
+      "note": "Smart template-based responses - automatically helps players!"
+    },
+
+    "admin-helper": {
+      "enabled": true,
+      "welcome-new-players": true,
+      "answer-questions": true,
+      "provide-tips": true
+    },
+
+    "anti-afk": {
+      "enabled": true,
+      "sneak": false,
+      "advanced": true
+    },
+
+    "chat-messages": {
+      "enabled": true,
+      "repeat": true,
+      "repeat-delay": 180,
+
+      "messages": [
+        "Hey everyone! Welcome to BetterSMP!",
+        "Having a great time on this server",
+        "The community here is really friendly",
+        "BetterSMP has some cool features",
+        "Anyone want to team up?",
+        "This server is pretty fun",
+        "Nice builds around spawn!",
+        "Good server for SMP gameplay",
+        "Enjoying the survival experience here",
+        "BetterSMP is a solid choice for multiplayer"
+      ]
+    },
+
+    "chat-log": true,
+    "auto-reconnect": true,
+    "auto-reconnect-delay": 5000
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "bettersmp-bot",
+  "version": "4.0.0",
+  "description": "Lightweight admin helper bot for Minecraft servers - keeps servers active and helps players automatically",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "pm2": "pm2 start index.js --name minecraft-bot",
+    "pm2:stop": "pm2 stop minecraft-bot",
+    "pm2:restart": "pm2 restart minecraft-bot",
+    "pm2:logs": "pm2 logs minecraft-bot"
+  },
+  "keywords": [
+    "minecraft",
+    "bot",
+    "mineflayer",
+    "server",
+    "smp",
+    "activity",
+    "lightweight"
+  ],
+  "author": "BetterSMP Community",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.1",
+    "mineflayer": "^4.3.0",
+    "mineflayer-pathfinder": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
