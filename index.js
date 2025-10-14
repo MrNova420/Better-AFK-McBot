@@ -6,6 +6,9 @@ const { GoalBlock } = require('mineflayer-pathfinder').goals;
 const config = require('./config/settings.json');
 const express = require('express');
 const BotResponses = require('./bot-responses');
+const ConversationTracker = require('./conversation-tracker');
+const DeviceMonitor = require('./device-monitor');
+const ShelterBuilder = require('./shelter-builder');
 const { startMemoryMonitoring, getMemoryUsage, cleanupOldData } = require('./utils');
 
 const app = express();
@@ -17,6 +20,24 @@ let reconnectDelay = config.utils['auto-reconnect-delay'] || 5000;
 let antiKickTimer = null;
 let chatMessageTimer = null;
 let isShuttingDown = false;
+
+const conversationTracker = new ConversationTracker({
+   enabled: config['advanced-behavior'] && config['advanced-behavior']['conversation-memory'] ? 
+      config['advanced-behavior']['conversation-memory'].enabled : true,
+   contextLength: config['advanced-behavior'] && config['advanced-behavior']['conversation-memory'] ? 
+      config['advanced-behavior']['conversation-memory']['context-length'] : 10
+});
+
+const deviceMonitor = new DeviceMonitor({
+   enabled: config['device-health'] && config['device-health']['cpu-throttling'] ?
+      config['device-health']['cpu-throttling'].enabled : true,
+   maxCpuPercent: config['device-health'] && config['device-health']['cpu-throttling'] ?
+      config['device-health']['cpu-throttling']['max-cpu-percent'] : 25,
+   maxMemoryMb: config['device-health'] && config['device-health']['memory-limits'] ?
+      config['device-health']['memory-limits']['max-memory-mb'] : 200
+});
+
+let shelterBuilder = null;
 
 let botStatus = {
    connected: false,
@@ -97,12 +118,18 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/stats', (req, res) => {
+   const deviceHealth = deviceMonitor.getSystemHealth();
+   const convStats = conversationTracker.getStats();
+   
    res.json({
       stats: botStatus.stats,
       uptime: Math.floor((Date.now() - botStatus.startTime) / 1000),
       reconnectAttempts: reconnectAttempts,
       health: botStatus.health,
       memory: getMemoryUsage(),
+      deviceHealth: deviceHealth,
+      conversations: convStats,
+      shelter: shelterBuilder ? shelterBuilder.getStatus() : null,
       process: {
          pid: process.pid,
          uptime: Math.floor(process.uptime()),
@@ -207,7 +234,13 @@ function createBot() {
       const botResponses = new BotResponses(
          config['bot-account']['username'],
          config.server.name || 'BetterSMP',
-         responseConfig
+         responseConfig,
+         conversationTracker
+      );
+
+      shelterBuilder = new ShelterBuilder(bot, 
+         config['advanced-behavior'] && config['advanced-behavior']['auto-shelter'] ? 
+            config['advanced-behavior']['auto-shelter'] : { enabled: false }
       );
 
       let pendingPromise = Promise.resolve();
@@ -267,7 +300,7 @@ function createBot() {
          });
       }
 
-      bot.once('spawn', () => {
+      bot.once('spawn', async () => {
          log('SUCCESS', `Bot successfully joined ${config.server.ip}:${config.server.port}`);
          log('INFO', `Position: ${bot.entity.position}`);
          
@@ -277,6 +310,17 @@ function createBot() {
          botStatus.health = 'healthy';
          botStatus.reconnectAttempts = reconnectAttempts;
          reconnectAttempts = 0;
+
+         if (config['advanced-behavior'] && config['advanced-behavior']['auto-shelter'] && 
+             config['advanced-behavior']['auto-shelter'].enabled) {
+            setTimeout(async () => {
+               try {
+                  await shelterBuilder.buildShelter();
+               } catch (error) {
+                  log('ERROR', `Shelter building failed: ${error.message}`);
+               }
+            }, 3000);
+         }
          
          if (bot.settings) {
             bot.settings.colorsEnabled = false;
@@ -386,6 +430,12 @@ function createBot() {
                if (isShuttingDown || !botStatus.connected) return;
                
                try {
+                  const throttleMultiplier = deviceMonitor.getThrottleDelay();
+                  
+                  if (throttleMultiplier > 1.5) {
+                     log('WARNING', `Device under stress, reducing activity (${throttleMultiplier.toFixed(1)}x delay)`);
+                  }
+                  
                   const actions = ['jump', 'forward', 'back', 'left', 'right'];
                   const action = actions[Math.floor(Math.random() * actions.length)];
                   
@@ -401,9 +451,18 @@ function createBot() {
                      }, 500 + Math.random() * 1000);
                   }
                   
+                  if (config['advanced-behavior'] && config['advanced-behavior']['realistic-movement']) {
+                     if (config['advanced-behavior']['realistic-movement']['look-around'] && Math.random() < 0.3) {
+                        const yaw = Math.random() * Math.PI * 2;
+                        const pitch = (Math.random() - 0.5) * 0.5;
+                        bot.look(yaw, pitch, false);
+                     }
+                  }
+                  
                   botStatus.lastActivity = Date.now();
                   
-                  const nextAction = 8000 + Math.floor(Math.random() * 12000);
+                  let nextAction = 8000 + Math.floor(Math.random() * 12000);
+                  nextAction = nextAction * throttleMultiplier;
                   antiKickTimer = setTimeout(performAntiAFK, nextAction);
                } catch (error) {
                   log('ERROR', `Anti-AFK error: ${error.message}`);
@@ -552,6 +611,7 @@ log('INFO', `Node.js: ${process.version}`);
 log('INFO', '='.repeat(60));
 
 startMemoryMonitoring(30);
+deviceMonitor.startMonitoring(5);
 
 setInterval(() => {
    if (bot && bot._client) {
@@ -560,6 +620,20 @@ setInterval(() => {
          cleanupOldData(botResponses.playerStats, 7 * 24 * 60 * 60 * 1000);
       }
    }
+   
+   conversationTracker.cleanup();
+   
+   const health = deviceMonitor.getSystemHealth();
+   if (health.cpu.isHigh || health.memory.isHigh) {
+      log('WARNING', 'Device health check: High resource usage detected');
+      if (health.recommendations) {
+         health.recommendations.forEach(rec => log('INFO', `  - ${rec}`));
+      }
+   }
 }, 24 * 60 * 60 * 1000);
+
+setInterval(() => {
+   conversationTracker.cleanup();
+}, 3600000);
 
 createBot();

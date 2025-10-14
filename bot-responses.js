@@ -1,15 +1,16 @@
 class BotResponses {
-   constructor(botName, serverName, config = {}) {
+   constructor(botName, serverName, config = {}, conversationTracker = null) {
       this.botName = botName;
       this.serverName = serverName;
       this.config = config;
+      this.conversationTracker = conversationTracker;
       this.lastResponses = [];
       this.conversationContext = new Map();
       this.playerStats = new Map();
       this.serverStartTime = Date.now();
       this.responseHistory = [];
       this.lastResponseTime = 0;
-      this.rateLimitDelay = 2000;
+      this.rateLimitDelay = config.rateLimitDelay || 2000;
    }
 
    async shouldRespondToMessage(message, playerName) {
@@ -49,6 +50,19 @@ class BotResponses {
       
       this.trackPlayerActivity(playerName);
       this.lastResponseTime = Date.now();
+
+      if (this.conversationTracker) {
+         this.conversationTracker.addMessage(playerName, playerMessage, false);
+      }
+
+      const context = this.conversationTracker ? 
+         this.conversationTracker.getConversationContext(playerName) : null;
+
+      if (context && context.preferences && context.preferences.favoriteActivity) {
+         if (lowerMessage.includes(context.preferences.favoriteActivity)) {
+            return this.getContextAwareResponse(playerName, context);
+         }
+      }
       
       if (lowerMessage.includes('rules') || lowerMessage.includes('rule')) {
          return this.getRandomResponse(this.getRulesResponses());
@@ -385,6 +399,31 @@ class BotResponses {
       return messages[Math.floor(Math.random() * messages.length)];
    }
 
+   getContextAwareResponse(playerName, context) {
+      const activity = context.preferences.favoriteActivity;
+      const responses = {
+         mining: [
+            `You're into mining, right ${playerName}? Found any good ores lately?`,
+            `Still working on that mining project ${playerName}?`,
+            `How's the mining going today ${playerName}?`
+         ],
+         building: [
+            `How's your build coming along ${playerName}?`,
+            `Working on any cool builds today ${playerName}?`,
+            `I'd love to see what you're building ${playerName}!`
+         ],
+         pvp: [
+            `Ready for some PvP action ${playerName}?`,
+            `Been practicing your combat skills ${playerName}?`,
+            `How's the PvP training going ${playerName}?`
+         ]
+      };
+
+      return responses[activity] ? 
+         this.getRandomResponse(responses[activity]) : 
+         this.getRandomResponse(this.getCasualResponses());
+   }
+
    getRandomResponse(responses) {
       const availableResponses = responses.filter(r => !this.lastResponses.includes(r));
       const responsePool = availableResponses.length > 0 ? availableResponses : responses;
@@ -393,6 +432,10 @@ class BotResponses {
       this.lastResponses.push(response);
       if (this.lastResponses.length > 8) {
          this.lastResponses.shift();
+      }
+      
+      if (this.conversationTracker && response) {
+         this.conversationTracker.addMessage(this.botName, response, true);
       }
       
       return response;
