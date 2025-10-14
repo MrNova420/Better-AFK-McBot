@@ -4,6 +4,7 @@ A lightweight admin helper bot for Minecraft servers. Keeps your server active, 
 
 ## ✨ Features
 
+
 ### Core Functionality
 - 🤖 **Realistic Player Behavior** - Acts like a real player, not an obvious bot
 - 🎓 **Smart Admin Helper** - Automatically helps players with rules, tips, and commands (NEW!)
