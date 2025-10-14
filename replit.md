@@ -2,304 +2,107 @@
 
 ## Overview
 
-BetterSMP Bot is a lightweight Minecraft bot designed to maintain server activity and promote community engagement. The bot connects to Minecraft servers using the Mineflayer library and simulates realistic player behavior through automated chat messages, anti-AFK movements, and optional pathfinding capabilities. It includes a simple web dashboard for monitoring bot status and supports 24/7 operation on various platforms including Replit, Termux, and traditional servers.
-
-The bot is built with Node.js and emphasizes minimal resource usage while appearing as a natural player rather than an obvious automation tool. It supports various Minecraft server versions and authentication systems.
+BetterSMP Bot is a lightweight Minecraft bot designed to maintain server activity and promote community engagement by simulating realistic player behavior. It connects to Minecraft servers using the Mineflayer library, providing features like automated chat messages, anti-AFK movements, and optional pathfinding. The bot aims to appear as a natural player, not an obvious automation tool, and supports 24/7 operation on platforms like Replit and Termux. It includes a simple web dashboard for monitoring status and is built with Node.js, focusing on minimal resource usage across various Minecraft server versions and authentication systems. The project's ambition is to offer a robust, easy-to-deploy solution for server administrators looking to enhance their community's online presence and activity.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (October 2025)
-
-### October 14, 2025 - Easy Setup System & User Experience Overhaul
-- **CREATED**: Interactive setup wizard (`setup.js`) for 5-question guided configuration
-- **CREATED**: Smart launcher (`start.js`) with auto-detection of interactive/non-interactive environments  
-- **CREATED**: Termux one-command installer (`termux-install.sh`) for Android deployment
-- **CREATED**: `QUICK-START.md` with detailed walkthrough and examples
-- **ENHANCED**: Beautiful HTML dashboard showing setup status and clear instructions
-- **IMPROVED**: Configuration validation with "SETUP_REQUIRED" placeholders
-- **FIXED**: Non-interactive workflow support (Replit, CI, cron) - auto-starts without hanging
-- **UPDATED**: Package.json with `npm run setup` command for easy configuration
-- **SIMPLIFIED**: README with 3-command quick start (install → setup → start)
-- **REMOVED**: Broken demo server option that caused authentication failures
-- **VALIDATED**: Setup wizard enforces required inputs (username, server IP, version)
-- **AUTOMATED**: Bot runs in dashboard-only mode when not configured, shows clear guidance
-- **USER-FRIENDLY**: All error messages now direct users to run `npm run setup`
-- **DEPLOYMENT**: Fully tested on Replit with non-interactive workflow execution
-- **NOTE**: Bot is now truly easy to use - just run `npm install && npm run setup && npm start`
-
-## Recent Changes (October 2025)
-
-### October 14, 2025 - Production-Ready Enhancements
-- **UPGRADED**: Node.js from v14 to v22 to meet mineflayer dependencies
-- **ENHANCED**: 200+ natural, varied responses with new categories (farming, combat, enchantments)
-- **IMPROVED**: Comprehensive error handling with exponential backoff reconnection
-- **ADDED**: Memory monitoring, automatic cleanup, and health checks
-- **IMPLEMENTED**: Graceful shutdown with proper resource cleanup
-- **CREATED**: Configuration validation on startup
-- **ADDED**: Enhanced web dashboard with /stats endpoint
-- **IMPLEMENTED**: Rate limiting to prevent spam and kicks
-- **ADDED**: Comprehensive logging system with color-coded levels
-- **CREATED**: utils.js for memory management utilities
-- **DOCUMENTED**: Complete SETUP-GUIDE.md with troubleshooting
-- **ENHANCED**: README.md with production-ready documentation
-- **CONFIGURED**: Express server to bind to 0.0.0.0:5000 for Replit compatibility
-- **READY**: Project fully production-ready for 24/7 stable operation
-- **NOTE**: Users must configure `config/settings.json` with their Minecraft server details before use
-
-### October 14, 2025 - Version 4.0 - Smart Admin Helper Bot
-- **REMOVED**: OpenAI API dependency - bot now works with zero external services!
-- **NEW**: Smart response system with 100+ pre-written context-aware templates
-- **NEW**: Admin helper features - welcomes players, answers questions, gives tips
-- **NEW**: Player activity tracking and statistics
-- **NEW**: Enhanced promotional messages with server uptime and player count
-- **IMPROVED**: Configuration simplified - admin features work out of the box
-- **FIXED**: All stability issues, bot runs reliably 24/7
-- **UPDATED**: Documentation reflects new admin helper capabilities
-
-### October 14, 2025 - Dependency Fix & Verification
-- **Fixed**: Missing npm dependencies - openai package was not installed despite being in package.json
-- **Updated**: Security patches applied via npm audit fix (fixed 11 vulnerabilities)
-- **Verified**: All features working correctly (AI chat, anti-AFK, chat messages, dashboard)
-- **Confirmed**: All documentation complete (README, QUICKSTART, TERMUX-GUIDE)
-
-### Version 3.0 - Major Overhaul
-- **Rebranded** from "AFK Bot" to "BetterSMP Bot" with focus on realistic player simulation
-- **Improved chat system**: Random message selection with dynamic timing for natural appearance
-- **Better project structure**: Configuration moved to `config/` directory
-- **Enhanced documentation**: Comprehensive README, QUICKSTART guide, and Termux setup
-- **Bug fixes**: Fixed auto-reconnect delay typo, improved error handling
-- **Security**: Added config/settings.json to .gitignore for credential protection
-- **Chat messages**: Updated to sound like real players, not obvious bot messages
-- **Package updates**: NPM scripts for easy PM2 management, better metadata
-
 ## System Architecture
 
 ### Application Type
-Single-process Node.js application that runs a Minecraft bot client and a basic web server for status monitoring.
+Single-process Node.js application running a Minecraft bot client and a basic web server for status monitoring.
 
 ### Core Components
 
 **Bot Client Architecture**
-- Uses Mineflayer library as the primary Minecraft protocol implementation
-- Implements plugin-based architecture with mineflayer-pathfinder for navigation
-- Event-driven pattern for handling Minecraft server events (chat, spawn, kicked, etc.)
-- Promise-based queueing system for sequential command execution to prevent server spam
-- Auto-reconnection logic with configurable delays for handling disconnections
+- Utilizes Mineflayer for Minecraft protocol implementation.
+- Features a plugin-based architecture, including mineflayer-pathfinder for navigation.
+- Employs an event-driven pattern for handling server interactions.
+- Uses a Promise-based queue for sequential command execution to prevent server spam.
+- Includes auto-reconnection logic with configurable delays.
 
 **Configuration System**
-- JSON-based configuration in `config/settings.json` (gitignored for security)
-- Hierarchical structure separating bot account, server connection, positioning, and utility features
-- Template configuration provided in `config/example.settings.json` for easy setup
-- No environment variables - all configuration through JSON files
-- Organized config directory for better project structure
+- JSON-based configuration in `config/settings.json`, which is gitignored for security.
+- Hierarchical structure for bot account, server connection, positioning, and features.
+- Provides `config/example.settings.json` as a template; does not use environment variables.
 
 **Anti-AFK Mechanism**
-- Periodic movement commands (jump, sneak) to prevent server AFK kicks
-- Configurable sneak behavior for servers with different AFK detection systems
-- Minimal resource overhead by using simple position updates rather than complex pathfinding
+- Executes periodic movements (jump, sneak) to prevent AFK kicks, configurable for different server detection systems.
 
 **Chat System**
-- Randomized chat messages with natural variation
-- Random selection from message pool (not sequential)
-- Dynamic delay system: base delay + random 0-60s variation
-- Initial random delay (0-30s) before first message
-- Chat logging capability for monitoring server interactions
-- Messages designed to sound like real player interactions
+- Generates randomized, natural-sounding chat messages from a diverse pool.
+- Incorporates dynamic delays between messages for realistic timing.
+- Supports chat logging.
 
 **Authentication System**
-- Support for server-side authentication plugins (e.g., `/register`, `/login`)
-- Configurable password-based auto-authentication
-- Event-based detection of authentication prompts
-- Fallback handling for already-registered accounts
+- Supports server-side authentication plugins (e.g., `/register`, `/login`) with configurable auto-authentication.
+- Handles event-based detection of authentication prompts.
 
 **Pathfinding (Optional)**
-- Integration with mineflayer-pathfinder plugin
-- Goal-based navigation to specific coordinates
-- Configurable via position settings in config
-- Uses minecraft-data for version-specific movement logic
+- Integrates `mineflayer-pathfinder` for goal-based navigation.
 
 **Web Dashboard**
-- Express.js-based HTTP server on port 5000
-- Simple status endpoint showing bot operational state
-- Designed for uptime monitoring and health checks
-- Minimal UI - primarily for programmatic status checks
+- Express.js-based HTTP server on port 5000 providing a minimal status endpoint for health checks and uptime monitoring.
 
 ### Technology Stack
 
 **Runtime & Core Libraries**
-- Node.js 14+ (specified in package.json engines)
-- Mineflayer v4.3.0 - Minecraft bot framework
-- mineflayer-pathfinder v2.1.1 - Navigation and movement
-- Express.js v4.18.1 - Web server for status endpoint
+- Node.js 14+ (currently upgraded to v22).
+- Mineflayer (v4.3.0) for core bot functionality.
+- mineflayer-pathfinder (v2.1.1) for navigation.
+- Express.js (v4.18.1) for the web server.
 
 **Authentication Support**
-- Mojang authentication (legacy)
-- Microsoft authentication via dependencies (@azure/msal-node, @xboxreplay/xboxlive-auth)
-- Offline mode support
+- Mojang authentication.
+- Microsoft authentication via `@azure/msal-node` and `@xboxreplay/xboxlive-auth`.
+- Offline mode support.
 
 ### Deployment Architecture
 
 **Multi-Platform Support**
-- Standard Node.js environments (Linux, Windows, macOS)
-- Replit cloud deployment (web server on port 5000 for always-on)
-- Termux for Android 24/7 operation (dedicated setup script)
-- Process management via PM2 scripts included
-
-**Process Management**
-- Direct node execution for development (`npm start`)
-- PM2 scripts for production deployment with auto-restart
-- Built-in reconnection logic eliminates need for external monitoring in simple cases
+- Compatible with standard Node.js environments, Replit cloud, and Termux for Android.
+- Includes PM2 scripts for process management.
 
 ### Design Decisions
 
-**Why Mineflayer over alternatives:**
-- Mature, well-maintained Minecraft protocol library
-- Plugin ecosystem for extensibility
-- Version-agnostic design supporting multiple Minecraft versions
-- Lower-level control compared to higher-level frameworks
-
-**Single JSON configuration file:**
-- Simplifies deployment across platforms
-- Easy to version control and share configurations
-- No environment variable management needed
-- Clear separation of concerns within structured JSON
-
-**Promise-based command queue:**
-- Prevents server-side rate limiting and kicks
-- Ensures sequential execution of critical commands (auth, movement)
-- Better error handling and recovery
-- Avoids race conditions in authentication flow
-
-**Minimal web dashboard:**
-- Keeps application lightweight and focused on bot functionality
-- Provides just enough feedback for monitoring without complex UI
-- Port 5000 chosen for Replit compatibility (uptime monitoring)
-
-**Event-driven architecture:**
-- Natural fit for Minecraft protocol's event-based nature
-- Easy to extend with new behaviors
-- Clean separation between different bot capabilities
-- Simplifies state management and error recovery
+- **Mineflayer Choice**: Selected for its maturity, plugin ecosystem, and version-agnostic design.
+- **Single JSON Configuration**: Simplifies deployment, version control, and separation of concerns.
+- **Promise-based Command Queue**: Prevents rate limiting, ensures sequential execution, and improves error handling.
+- **Minimal Web Dashboard**: Focuses on core bot functionality, providing essential monitoring without complex UI.
+- **Event-Driven Architecture**: Naturally fits the Minecraft protocol, allowing for easy extension and clean separation of concerns.
 
 ## External Dependencies
 
 ### Third-Party Libraries
 
 **Minecraft Protocol & Bot Framework**
-- `mineflayer` (v4.3.0) - Core Minecraft bot implementation, handles protocol communication, entity management, and world interaction
-- `mineflayer-pathfinder` (v2.1.1) - Pathfinding and navigation plugin providing A* pathfinding and movement goals
-- `minecraft-data` - Implicitly used via mineflayer for version-specific game data
+- `mineflayer` (v4.3.0): Core Minecraft bot implementation.
+- `mineflayer-pathfinder` (v2.1.1): Pathfinding and navigation.
+- `minecraft-data`: Used for version-specific game data.
 
 **Web Server**
-- `express` (v4.18.1) - HTTP server for status endpoint and health monitoring
+- `express` (v4.18.1): HTTP server for status and health monitoring.
 
 **Authentication Services**
-- `@azure/msal-node` (v1.9.1) - Microsoft authentication library for Minecraft Microsoft accounts
-- `@xboxreplay/xboxlive-auth` (v3.3.3) - Xbox Live authentication for Microsoft account flow
-- Supports Mojang legacy authentication (built into mineflayer)
+- `@azure/msal-node` (v1.9.1): Microsoft authentication library.
+- `@xboxreplay/xboxlive-auth` (v3.3.3): Xbox Live authentication.
 
 ### External Services
 
 **Minecraft Servers**
-- Connects to any Minecraft Java Edition server (version-configurable)
-- Example configuration uses Aternos free hosting (BetterSMP-J787.aternos.me)
-- Supports both online and offline mode servers
-- Compatible with authentication plugins (AuthMe, etc.)
+- Connects to any Minecraft Java Edition server (version-configurable), supporting both online and offline modes, and authentication plugins.
 
 **Microsoft/Xbox Live Services**
-- Used when bot account type is set to "microsoft"
-- OAuth flow handled through Azure MSAL
-- Required for Minecraft accounts migrated to Microsoft
+- Utilized when the bot account type is set to "microsoft" for OAuth flow.
 
 ### Infrastructure Requirements
 
 **Runtime Environment**
-- Node.js 22+ required (mineflayer v4.33.0+ dependency)
-- Replit setup: Node.js 22.17.0 installed and configured
-- Network connectivity to Minecraft servers (TCP, configurable port)
-- Persistent storage for configuration files (config directory)
-
-**Optional Infrastructure**
-- PM2 process manager for production deployments
-- Replit platform support (web server for always-on functionality)
-- Termux for Android 24/7 hosting (automated setup provided)
+- Node.js 22+ runtime.
+- Network connectivity to Minecraft servers (TCP) and HTTPS for Microsoft authentication.
+- Persistent storage for configuration files.
 
 **Network & Ports**
-- Inbound: Port 5000 (Express web dashboard, bound to 0.0.0.0 for Replit)
-- Outbound: Minecraft server port (default 25565, configurable)
-- Outbound: HTTPS 443 for Microsoft authentication (when applicable)
-
-## Replit-Specific Setup
-
-### Configuration Required
-Before the bot can connect to a Minecraft server, you must edit `config/settings.json`:
-
-1. **Bot Account Settings**
-   - Set your Minecraft username
-   - For offline servers: leave password empty
-   - For Microsoft accounts: set type to "microsoft" and provide credentials
-   - Note: Mojang authentication is deprecated (accounts must be migrated to Microsoft)
-
-2. **Server Settings**
-   - Set the Minecraft server IP address
-   - Set the server port (default: 25565)
-   - Set the Minecraft version to match your server
-   - Optionally set a server name for messages
-
-3. **Feature Configuration**
-   - Configure anti-AFK, chat messages, smart responses as desired
-   - All features are pre-configured with sensible defaults
-
-### Running on Replit
-- The workflow is configured to run automatically on start
-- Web dashboard is accessible at the preview URL
-- Console output shows bot activity and connection status
-- Logs include connection attempts, chat messages, and errors
-
-### Production Features
-The bot now includes enterprise-grade features for 24/7 operation:
-
-**Stability & Reliability:**
-- ✅ Comprehensive error handling and recovery
-- ✅ Exponential backoff reconnection (up to 100 attempts)
-- ✅ Graceful shutdown with proper cleanup
-- ✅ Configuration validation on startup
-- ✅ Memory monitoring and automatic cleanup
-
-**Monitoring & Observability:**
-- ✅ Real-time health checks (`/health`)
-- ✅ Detailed statistics (`/stats`)
-- ✅ Color-coded logging system
-- ✅ Memory usage tracking
-- ✅ Process information API
-
-**Smart Features:**
-- ✅ 200+ natural, varied responses
-- ✅ Rate limiting to prevent spam
-- ✅ Context-aware player assistance
-- ✅ Automatic welcome system
-- ✅ Player activity tracking
-
-### Deployment
-To run this bot 24/7 on Replit:
-1. Configure your settings in `config/settings.json`
-2. Click "Run" - the bot starts automatically
-3. *Optional:* Deploy using Replit's Reserved VM deployment option
-4. Monitor status via the web dashboard at `/`, `/health`, or `/stats` endpoints
-
-### API Endpoints
-- `GET /` - Full bot status with uptime and formatted metrics
-- `GET /health` - Health check (returns 200 if healthy, 503 if unhealthy)
-- `GET /stats` - Detailed statistics including memory usage and process info
-
-### Files Added
-- `utils.js` - Memory management and monitoring utilities
-- `SETUP-GUIDE.md` - Comprehensive setup and troubleshooting guide
-
-### Files Enhanced
-- `index.js` - Comprehensive error handling, logging, and monitoring
-- `bot-responses.js` - 200+ responses with new categories
-- `README.md` - Production-ready documentation
-- `package.json` - Enhanced scripts and metadata
+- Inbound: Port 5000 (Express web dashboard, bound to 0.0.0.0).
+- Outbound: Minecraft server port (default 25565, configurable) and HTTPS 443 for Microsoft authentication.
